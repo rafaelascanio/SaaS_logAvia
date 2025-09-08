@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pilot Logbook — Visualization Only</title>
+  <style>
+    :root{--gap:24px;--pad:24px;--card-bg:#fff;--muted:#6b7280}
+    body{font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:#f8fafc;color:#0f172a}
+    .container{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--gap);padding:var(--pad)}
+    .card{background:var(--card-bg);border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,0.06)}
+    h1,h2{margin:0 0 12px 0}
+    .left,.center,.right{display:flex;flex-direction:column;gap:24px}
+
+    /* stat tiles */
+    .stats{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+    .stat{min-width:120px;background:#fff;padding:14px;border-radius:10px;box-shadow:0 6px 14px rgba(15,23,42,0.04);text-align:center}
+    .stat .label{font-size:12px;color:var(--muted)}
+    .stat .value{font-weight:700;font-size:18px}
+
+    /* pie using conic-gradient */
+    .pie-wrap{display:flex;justify-content:center}
+    .pie{width:320px;height:320px;border-radius:50%;background:conic-gradient(#2563eb 0 40%, #16a34a 40% 53.333%, #facc15 53.333% 77.333%, #ef4444 77.333% 100%);position:relative}
+    .pie::after{content:'';position:absolute;inset:18%;border-radius:50%;background:#f8fafc}
+    .legend{display:flex;gap:18px;justify-content:center;margin-top:12px;font-size:13px}
+    .legend .item{display:flex;gap:6px;align-items:center}
+    .sw{width:12px;height:12px;border-radius:2px}
+
+    /* responsive tweaks */
+    @media (max-width:720px){.stat{min-width:140px}}
+  </style>
+</head>
+<body>
+  <div style="padding:32px">
+    <h1 style="font-size:30px;margin-bottom:8px">Pilot Logbook — Visualization</h1>
+    <div class="container">
+      <!-- left: profile + certs -->
+      <div class="left">
+        <div class="card">
+          <h2>Pilot Profile</h2>
+          <p><strong>Name:</strong> Rafael Ascanio</p>
+          <p><strong>License Number:</strong> CL-PPL-00123</p>
+          <p><strong>Nationality:</strong> Chile</p>
+          <p><strong>Date of Birth:</strong> 4/11/1990</p>
+          <p><strong>License Type:</strong> PPL(A)</p>
+          <p><strong>License Issue Date:</strong> 6/14/2020</p>
+          <p><strong>License Expiry Date:</strong> 6/14/2026</p>
+        </div>
+
+        <div class="card">
+          <h2>Certifications & Endorsements</h2>
+          <ul style="margin:0;padding-left:18px;font-size:14px">
+            <li>✅ Solo Flight Endorsement</li>
+            <li>⏳ IFR Currency: 2 months left</li>
+            <li>📄 Medical Certificate: Valid</li>
+            <li>⚠️ Flight Review Due Soon</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- center: stats + pie -->
+      <div class="center">
+        <div class="card">
+          <h2 style="text-align:center;margin-bottom:10px">Flight Hours Breakdown</h2>
+          <div class="stats" style="margin-bottom:12px">
+            <div class="stat"><div class="label">Flights</div><div class="value">24</div></div>
+            <div class="stat"><div class="label">Total</div><div class="value">53:56</div></div>
+            <div class="stat"><div class="label">PIC</div><div class="value">48:19</div></div>
+            <div class="stat"><div class="label">SIC</div><div class="value">01:21</div></div>
+            <div class="stat"><div class="label">IFR</div><div class="value">08:10</div></div>
+            <div class="stat"><div class="label">Day</div><div class="value">51:24</div></div>
+            <div class="stat"><div class="label">Night</div><div class="value">02:32</div></div>
+          </div>
+
+          <div class="pie-wrap">
+            <div class="pie" role="img" aria-label="Flight hours pie chart"></div>
+          </div>
+          <div class="legend">
+            <div class="item"><span class="sw" style="background:#facc15"></span> IFR</div>
+            <div class="item"><span class="sw" style="background:#2563eb"></span> PIC</div>
+            <div class="item"><span class="sw" style="background:#16a34a"></span> SIC</div>
+            <div class="item"><span class="sw" style="background:#ef4444"></span> VFR</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right: last flight -->
+      <div>
+        <div class="card">
+          <h2>Last Flight</h2>
+          <p>✈️ Cessna 172N - CC-ABC</p>
+          <p>📍 SCL → LSC</p>
+          <p>⏱ 02h 15m | Day VFR</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

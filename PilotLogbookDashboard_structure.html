@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PilotLogbookDashboard Component Structure</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #container {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 2rem;
+            max-width: 90%;
+            width: 1200px;
+        }
+        h1 {
+            text-align: center;
+            color: #2563eb;
+            margin-bottom: 2rem;
+        }
+        .mermaid {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>PilotLogbookDashboard Component Structure</h1>
+        <div class="mermaid">
+            graph TD
+                subgraph External Data & Libraries
+                    A[Hardcoded `data` Array]
+                    B[recharts Library]
+                    C[lucide-react Library]
+                end
+
+                subgraph Component: PilotLogbookDashboard
+                    D(PilotLogbookDashboard)
+                    
+                    subgraph "Card 1: Pilot Profile"
+                        D1[Card]
+                        D1_1["h2: Pilot Profile"]
+                        D1_2["p: Name, License"]
+                        D1_3["div: ATPL Progress Bar"]
+                    end
+
+                    subgraph "Card 2: Flight Hours Breakdown"
+                        D2[Card]
+                        D2_1["h2: Flight Hours..."]
+                        D2_2(PieChart)
+                        D2_3(Pie)
+                        D2_4(Cell)
+                        D2_5(Tooltip)
+                        D2_6(Legend)
+                    end
+
+                    subgraph "Card 3: Last Flight"
+                        D3[Card]
+                        D3_1["h2: Last Flight"]
+                        D3_2["div: Flight Info"]
+                        D3_2_1(Plane Icon)
+                        D3_2_2(MapPin Icon)
+                        D3_2_3(Clock Icon)
+                    end
+
+                    subgraph "Card 4: Certifications"
+                        D4[Card]
+                        D4_1["h2: Certifications..."]
+                        D4_2["div: Status Items"]
+                    end
+
+                    D --> D1
+                    D --> D2
+                    D --> D3
+                    D --> D4
+
+                    D1 --> D1_1 & D1_2 & D1_3
+                    D2 --> D2_1 & D2_2
+                    D2_2 --> D2_3 --> D2_4
+                    D2_2 --> D2_5 & D2_6
+                    
+                    D3 --> D3_1 & D3_2
+                    D3_2 --> D3_2_1 & D3_2_2 & D3_2_3
+
+                    D4 --> D4_1 & D4_2
+                end
+
+                subgraph Data & Library Usage
+                    A -- "Flight Hours Data" --> D2_3
+                    B -- "Chart Components" --> D2_2
+                    C -- "Icons" --> D3_2_1 & D3_2_2 & D3_2_3
+                end
+
+                style D fill:#e0f2fe,stroke:#0ea5e9,stroke-width:2px
+                style D1 fill:#f1f5f9,stroke:#94a3b8
+                style D2 fill:#f1f5f9,stroke:#94a3b8
+                style D3 fill:#f1f5f9,stroke:#94a3b8
+                style D4 fill:#f1f5f9,stroke:#94a3b8
+                style A fill:#fef9c3,stroke:#facc15
+                style B fill:#dcfce7,stroke:#22c55e
+                style C fill:#dbeafe,stroke:#60a5fa
+        </div>
+    </div>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+</html>
+
