@@ -25,5 +25,14 @@ You can find synthetic data ready for ingestion in `data/`:
 - `pilot_logbook_populated_120.csv`
 - `pilot_logbook_populated_120.xlsx`
 
+## Running Tests
+Once the project scripts are set up, run tests from the repository root:
+
+```bash
+npm test
+```
+
+This command delegates to the test script defined in `app/package.json`.
+
 ## License
 MIT

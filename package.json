@@ -1,0 +1,7 @@
+{
+  "name": "SaaS_logAvia",
+  "private": true,
+  "scripts": {
+    "test": "npm --prefix app test"
+  }
+}
