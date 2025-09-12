@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PilotLogbookDashboard from "./components/PilotLogbookDashboard.jsx";
 import { loadLogbook } from "@/lib/loadExcel.js";
 

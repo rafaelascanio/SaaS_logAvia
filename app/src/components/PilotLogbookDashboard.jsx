@@ -2,28 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { MapPin, Clock, Plane } from 'lucide-react';
 import { loadLogbook } from '@/lib/loadExcel.js';
+import StatCard from './StatCard.jsx';
+import Card from './Card.jsx';
 
-const STATIC_DATA = [
-  { name: 'PIC', value: 120 },
-  { name: 'SIC', value: 40 },
-  { name: 'IFR', value: 60 },
-  { name: 'VFR', value: 80 },
-];
-
-const COLORS = ['#2563eb', '#16a34a', '#facc15', '#ef4444'];
-
-function Card({ children, className }) {
-  return <div className={`rounded-2xl shadow p-4 bg-white ${className || ''}`}>{children}</div>;
-}
-
-function StatCard({ label, value }) {
-  return (
-    <div style={{ minWidth: 120, padding: 12, borderRadius: 12, background: '#fff', boxShadow: '0 8px 20px rgba(17,24,39,0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 18, fontWeight: 700 }}>{value}</div>
-    </div>
-  );
-}
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 function toMinutes(hhmm) {
   if (hhmm == null) return 0;
@@ -45,28 +27,60 @@ function formatDate(value) {
   // Try to parse with Date first
   const d = new Date(s);
   if (!Number.isNaN(d.getTime())) return d.toLocaleDateString();
-  // Fallback: remove time and timezone fragments like "20:00:00 GMT-0400 (...)" or "T20:00:00"
+  // Fallback: remove time and timezone fragments like "20:00:00 GMT-0400 (... )" or "T20:00:00"
   const stripped = s.replace(/\s*\d{1,2}:\d{2}:\d{2}.*$/, '').replace(/T.*$/, '').trim();
   return stripped || s;
 }
 
 export default function PilotLogbookDashboard({ pilotInfo = null, summary = undefined, lastFlight = undefined }) {
-  const [data, setData] = useState(STATIC_DATA);
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const rows = await loadLogbook('/data/logbook.xlsx');
-        if (!rows || rows.length === 0) return;
+        const dataPath = pilotInfo?.id ? `/data/logbook_${pilotInfo.id}.xlsx` : '/data/logbook.xlsx';
+        let rows = await loadLogbook(dataPath);
+        if (!rows || rows.length === 0) {
+          // Ensure chart can render with zeroed data
+          if (mounted) {
+            setData([
+              { name: 'PIC', value: 0 },
+              { name: 'SIC', value: 0 },
+              { name: 'IFR', value: 0 },
+              { name: 'VFR', value: 0 },
+            ]);
+          }
+          return;
+        }
 
-        const keys = Object.keys(rows[0] || {});
+        let keys = Object.keys(rows[0] || {});
+        // Attempt to narrow down to active pilot when a per-pilot file isn't used
+        const pilotHeader = keys.find(k => k && k.toUpperCase().includes('PILOT'));
+        if (pilotHeader && pilotInfo?.name && !pilotInfo?.id) {
+          const nameLower = String(pilotInfo.name).toLowerCase();
+          rows = rows.filter(r => (String(r[pilotHeader] ?? '').toLowerCase().includes(nameLower)));
+          // refresh keys after filtering
+          keys = Object.keys(rows[0] || {});
+          // If after filtering there is no data, render zeros
+          if (!rows || rows.length === 0) {
+            if (mounted) {
+              setData([
+                { name: 'PIC', value: 0 },
+                { name: 'SIC', value: 0 },
+                { name: 'IFR', value: 0 },
+                { name: 'VFR', value: 0 },
+              ]);
+            }
+            return;
+          }
+        }
+        // Helper to map column headers to keys we look for
         const findKey = (substr) => keys.find(k => k && k.toUpperCase().includes(substr.toUpperCase()));
 
         const picKey = findKey('PIC');
         const sicKey = findKey('SIC');
-        const ifrKey = findKey('IFR');
-        // VFR might be stored as 'VFR' or as 'VFR Time' etc.
+        const IFRKey = findKey('IFR');
         const vfrKey = findKey('VFR') || findKey('VFR TIME') || findKey('VFR/OTHER');
 
         let totals = { PIC: 0, SIC: 0, IFR: 0, VFR: 0 };
@@ -74,12 +88,11 @@ export default function PilotLogbookDashboard({ pilotInfo = null, summary = unde
         for (const r of rows) {
           if (picKey) totals.PIC += toMinutes(r[picKey]);
           if (sicKey) totals.SIC += toMinutes(r[sicKey]);
-          if (ifrKey) totals.IFR += toMinutes(r[ifrKey]);
+          if (IFRKey) totals.IFR += toMinutes(r[IFRKey]);
           if (vfrKey) totals.VFR += toMinutes(r[vfrKey]);
         }
 
-        const totalSum = Object.values(totals).reduce((a, b) => a + b, 0);
-        if (mounted && totalSum > 0) {
+        if (mounted) {
           setData([
             { name: 'PIC', value: totals.PIC },
             { name: 'SIC', value: totals.SIC },
@@ -88,32 +101,59 @@ export default function PilotLogbookDashboard({ pilotInfo = null, summary = unde
           ]);
         }
       } catch {
-        // keep static data on error
+        if (mounted) {
+          setData([
+            { name: 'PIC', value: 0 },
+            { name: 'SIC', value: 0 },
+            { name: 'IFR', value: 0 },
+            { name: 'VFR', value: 0 },
+          ]);
+        }
       }
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [pilotInfo]);
 
   console.log("Grid wrapper applied");
   console.log("lastFlight", lastFlight);
   console.log('PilotLogbookDashboard lastFlight prop:', lastFlight);
-  // add this just above the return to verify render
+
+  // Custom tooltip to show per-slice minutes instead of relying on default payload rendering
+  function CustomTooltip({ active, payload }) {
+    if (!active || !payload || payload.length === 0) return null;
+    const p = payload[0];
+    const name = p?.payload?.name ?? '';
+    const value = p?.payload?.value ?? 0;
+    return (
+      <div
+        style={{
+          background: '#fff',
+          border: '1px solid #ccc',
+          padding: '6px 8px',
+          borderRadius: 4,
+        }}
+      >
+        <strong>{name}</strong>: {value} min
+      </div>
+    );
+  }
+
+  // UI layout with per-pilot data-driven pie
   return (
     <div
       style={{
-        display: "grid",
-  gridTemplateColumns: "420px minmax(0, 1fr) 420px",
-  columnGap: "80px",
-  rowGap: "24px",
-  padding: "32px",
-  maxWidth: "1600px",
-        margin: "0 auto",
-        alignItems: "start",
-        width: "100%",
-        boxSizing: "border-box",
+        display: 'grid',
+        gridTemplateColumns: '420px minmax(0, 1fr) 420px',
+        columnGap: '80px',
+        rowGap: '24px',
+        padding: '32px',
+        maxWidth: '1600px',
+        margin: '0 auto',
+        alignItems: 'start',
+        width: '100%',
+        boxSizing: 'border-box',
       }}
     >
-      {/* Left column: Profile (top) and Certifications (below) */}
       <div style={{ flex: '1 1 220px', minWidth: 220, display: 'flex', flexDirection: 'column', gap: 24 }}>
         <Card>
           <div className="space-y-2">
@@ -143,11 +183,9 @@ export default function PilotLogbookDashboard({ pilotInfo = null, summary = unde
         </Card>
       </div>
 
-  {/* Center column: Pie chart and summary cards (wide column) */}
-  <div style={{ flex: '3 1 520px', minWidth: 320, display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ flex: '3 1 520px', minWidth: 320, display: 'flex', flexDirection: 'column', gap: 24 }}>
         <Card className="w-full">
           <h2 className="text-xl font-bold mb-4 text-center">Flight Hours Breakdown</h2>
-          {/* summary cards (if provided) */}
           {typeof summary !== 'undefined' && summary && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(120px, 1fr))', gap: 16, justifyItems: 'center', marginBottom: 16 }}>
               <StatCard label="Flights" value={summary.flights} />
@@ -161,27 +199,25 @@ export default function PilotLogbookDashboard({ pilotInfo = null, summary = unde
               </div>
             </div>
           )}
-  <div style={{ width: '100%' }}>
-    <ResponsiveContainer width="100%" height={420}>
-              <PieChart>
+          <div style={{ width: '100%' }}>
+            <ResponsiveContainer width="100%" height={420}>
+              <PieChart key={JSON.stringify(data)}>
                 <Pie data={data} cx="50%" cy="50%" labelLine={false} outerRadius="80%" fill="#8884d8" dataKey="value">
                   {data.map((entry, index) => (
                     <Cell key={entry.name || index} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
-        <Legend verticalAlign="bottom" align="center" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend verticalAlign="bottom" align="center" />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </Card>
       </div>
 
-      {/* Right column: Last Flight (dynamic) */}
       <div style={{ flex: '1 1 220px', minWidth: 220 }}>
         <Card>
-          <h2 className="text-xl font-bold mb-3">Last Flight {lastFlight?.["Flight Date"] ? `— ${formatDate(lastFlight["Flight Date"])}` : ""}</h2>
-
+          <h2 className="text-xl font-bold mb-3">Last Flight {/* optional */}</h2>
           {lastFlight ? (
             <>
               <div className="flex items-center space-x-2">
@@ -190,29 +226,23 @@ export default function PilotLogbookDashboard({ pilotInfo = null, summary = unde
                   {lastFlight["Aircraft Make/Model"] || "—"} — {lastFlight["Aircraft Registration"] || "—"}
                 </p>
               </div>
-
               <div className="flex items-center space-x-2 mt-3">
                 <MapPin className="w-5 h-5 text-green-600" />
                 <p>
                   {lastFlight["Route From (ICAO)"] || "—"} → {lastFlight["Route To (ICAO)"] || "—"}
                 </p>
               </div>
-
               <div className="flex items-center space-x-2 mt-3">
                 <Clock className="w-5 h-5 text-gray-600" />
                 <p>
-                  {lastFlight["Total Flight Time (HH:MM)"] || "00:00"}
-                  {" | "}
-                  {/* Type & role */}
-                  { (toMinutes(lastFlight["IFR Time (HH:MM)"]) > 0) ? "IFR" : "VFR" }
-                  { (toMinutes(lastFlight["Night Time (HH:MM)"]) > 0) ? " • Night" : " • Day" }
-                  {" • "}
-                  { (toMinutes(lastFlight["Solo Time (HH:MM)"]) > 0) ? "Solo (PIC)" :
-                    (toMinutes(lastFlight["PIC Time (HH:MM)"]) >= toMinutes(lastFlight["SIC Time (HH:MM)"])) ? "PIC" : "SIC" }
+                  {lastFlight["Total Flight Time (HH:MM)"] || '00:00'}
+                  {' | '}
+                  { (toMinutes(lastFlight["IFR Time (HH:MM)"]) > 0) ? 'IFR' : 'VFR' }
+                  { (toMinutes(lastFlight["Night Time (HH:MM)"]) > 0) ? ' • Night' : ' • Day' }
+                  {' • '}
+                  { (toMinutes(lastFlight["Solo Time (HH:MM)"]) > 0) ? 'Solo (PIC)' : (toMinutes(lastFlight["PIC Time (HH:MM)"]) >= toMinutes(lastFlight["SIC Time (HH:MM)"])) ? 'PIC' : 'SIC' }
                 </p>
               </div>
-
-              {/* Optional IFR approaches line */}
               {toMinutes(lastFlight["IFR Time (HH:MM)"]) > 0 && (
                 <p className="mt-3 text-sm text-gray-600">
                   Approaches: {lastFlight["Approach Count"] || 0} {lastFlight["Approach Type"] ? `(${lastFlight["Approach Type"]})` : ""}
