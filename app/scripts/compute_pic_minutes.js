@@ -3,9 +3,11 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import ExcelJS from 'exceljs';
 
-const APP_ROOT = path.resolve('c:\\Users\\rafae\\SaaS_logAvia\\app');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const APP_ROOT = path.resolve(__dirname, '..');
 const PUBLIC_DATA = path.join(APP_ROOT, 'public', 'data');
 
 function toMinutes(hhmm) {
