@@ -41,7 +41,7 @@
 
 2. **Copy the component**
    ```
-   components/PilotLogbookDashboard.jsx
+   app/src/components/PilotLogbookDashboard.jsx
    ```
 
 3. **Use it in your project**
