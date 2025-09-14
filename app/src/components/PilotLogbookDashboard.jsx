@@ -4,20 +4,9 @@ import { MapPin, Clock, Plane } from 'lucide-react';
 import { loadLogbook } from '@/lib/loadExcel.js';
 import StatCard from './StatCard.jsx';
 import Card from './Card.jsx';
+import { toMinutes } from '@/utils/time.js';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
-
-function toMinutes(hhmm) {
-  if (hhmm == null) return 0;
-  const s = String(hhmm).trim();
-  if (s === '') return 0;
-  if (s.includes(':')) {
-    const [h, m] = s.split(':');
-    return (parseInt(h, 10) || 0) * 60 + (parseInt(m, 10) || 0);
-  }
-  const n = Number(s.replace(/[^0-9.-]/g, ''));
-  return Number.isFinite(n) ? n : 0;
-}
 
 // Format date-like values to a simple local date (strip time and timezone like "20:00:00 GMT-0400 (Chile Standard Time)")
 function formatDate(value) {

@@ -1,18 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PilotLogbookDashboard from "./components/PilotLogbookDashboard.jsx";
 import { loadLogbook } from "@/lib/loadExcel.js";
-
-// helpers to convert "HH:MM"
-function toMinutes(hhmm) {
-  if (!hhmm) return 0;
-  const [h, m] = String(hhmm).split(":");
-  return (parseInt(h || 0, 10) * 60) + (parseInt(m || 0, 10));
-}
-function toHHMM(mins) {
-  const h = String(Math.floor(mins / 60)).padStart(2, "0");
-  const m = String(mins % 60).padStart(2, "0");
-  return `${h}:${m}`;
-}
+import { toMinutes, toHHMM } from "@/utils/time.js";
 
 // Read a cell value using a list of possible header variants.
 function getCell(row, variants) {

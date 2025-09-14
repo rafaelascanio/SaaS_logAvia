@@ -4,21 +4,10 @@
 import fs from 'fs';
 import path from 'path';
 import ExcelJS from 'exceljs';
+import { toMinutes } from '../src/utils/time.js';
 
 const APP_ROOT = path.resolve('c:\\Users\\rafae\\SaaS_logAvia\\app');
 const PUBLIC_DATA = path.join(APP_ROOT, 'public', 'data');
-
-function toMinutes(hhmm) {
-  if (hhmm == null) return 0;
-  const s = String(hhmm).trim();
-  if (s === '') return 0;
-  if (s.includes(':')) {
-    const [h, m] = s.split(':');
-    return (parseInt(h, 10) || 0) * 60 + (parseInt(m, 10) || 0);
-  }
-  const n = Number(s.replace(/[^0-9.-]/g, ''));
-  return Number.isFinite(n) ? n : 0;
-}
 
 async function loadSheetMinutes(filePath) {
   const wb = new ExcelJS.Workbook();
