@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import PilotLogbookDashboard from "./components/PilotLogbookDashboard.jsx";
 import { loadLogbook } from "@/lib/loadExcel.js";
 import { toMinutes, toHHMM } from "@/utils/time.js";
+import { debugLog } from "@/utils/debug.js";
 
 // Read a cell value using a list of possible header variants.
 function getCell(row, variants) {
@@ -91,14 +92,10 @@ export default function App() {
     )[0];
   }, [filteredRows]);
 
-  // Debug: log rows, filteredRows, and lastFlight after all are computed
-  console.log("rows", rows);
-  console.log("filteredRows", filteredRows);
-  console.log("lastFlight", lastFlight);
-
-  // Debug: log filteredRows and lastFlight after initialization
-  console.log("filteredRows", filteredRows);
-  console.log("lastFlight (App)", lastFlight);
+  // Optional debug output: enable via VITE_LOGBOOK_DEBUG=true or localStorage.setItem('logbookDebug', 'true')
+  debugLog("rows", rows);
+  debugLog("filteredRows", filteredRows);
+  debugLog("lastFlight", lastFlight);
 
   return (
     <div style={{ padding: 16 }}>

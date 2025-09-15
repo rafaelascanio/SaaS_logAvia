@@ -18,7 +18,7 @@ describe('loadLogbook', () => {
     ws.addRow(['Bob', '']);
     const buf = await workbook.xlsx.writeBuffer();
 
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       arrayBuffer: () => Promise.resolve(buf),
     });
@@ -33,7 +33,7 @@ describe('loadLogbook', () => {
   });
 
   it('throws when fetch response is not ok', async () => {
-    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
     await expect(loadLogbook('missing.xlsx')).rejects.toThrow('Failed to fetch missing.xlsx: 404');
   });
 });

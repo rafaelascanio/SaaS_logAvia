@@ -5,6 +5,7 @@ import { loadLogbook } from '@/lib/loadExcel.js';
 import StatCard from './StatCard.jsx';
 import Card from './Card.jsx';
 import { toMinutes } from '@/utils/time.js';
+import { debugLog } from '@/utils/debug.js';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
@@ -103,9 +104,10 @@ export default function PilotLogbookDashboard({ pilotInfo = null, summary = unde
     return () => { mounted = false; };
   }, [pilotInfo]);
 
-  console.log("Grid wrapper applied");
-  console.log("lastFlight", lastFlight);
-  console.log('PilotLogbookDashboard lastFlight prop:', lastFlight);
+  // Optional debug output mirrors App: set VITE_LOGBOOK_DEBUG=true or toggle localStorage.
+  debugLog('Grid wrapper applied');
+  debugLog('lastFlight', lastFlight);
+  debugLog('PilotLogbookDashboard lastFlight prop:', lastFlight);
 
   // Custom tooltip to show per-slice minutes instead of relying on default payload rendering
   function CustomTooltip({ active, payload }) {
