@@ -28,8 +28,7 @@ async function loadSheetMinutes(filePath) {
     // skip empty rows
     if (vals.every(v => v == null || String(v).trim() === '')) continue;
     // determine PIC column by header name containing 'PIC'
-    const findIndex = headers.findIndex(h => h && h.toUpperCase().includes('PIC'));
-    const picIndex = findIndex;
+    const picIndex = headers.findIndex(h => h && h.toUpperCase().includes('PIC'));
     if (picIndex < 0) continue; // no PIC column
     const v = vals[picIndex];
     totals += toMinutes(v);
