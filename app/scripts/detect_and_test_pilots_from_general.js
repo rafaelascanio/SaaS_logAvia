@@ -1,9 +1,14 @@
 // Detect pilots from logbook.xlsx and test PIC minutes per pilot by scanning the general logbook file
 import ExcelJS from 'exceljs';
-import path from 'path';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { toMinutes } from '../src/utils/time.js';
 
-const APP_ROOT = path.resolve('c:\\Users\\rafae\\SaaS_logAvia\\app');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// this file lives in app/scripts → go one level up to reach app/
+const APP_ROOT = path.resolve(__dirname, '..');
 const DATA_FILE = path.join(APP_ROOT, 'public', 'data', 'logbook.xlsx');
 
 async function loadLogbookWorkbook(filePath){
