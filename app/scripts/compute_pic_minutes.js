@@ -3,11 +3,10 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import ExcelJS from 'exceljs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const APP_ROOT = path.resolve(__dirname, '..');
+const cwd = process.cwd();
+const APP_ROOT = path.basename(cwd) === 'app' ? cwd : path.join(cwd, 'app');
 const PUBLIC_DATA = path.join(APP_ROOT, 'public', 'data');
 
 function toMinutes(hhmm) {
