@@ -33,15 +33,6 @@ function computeSummary(rows) {
   return { flights, total: toHHMM(total), pic: toHHMM(pic), sic: toHHMM(sic), ifr: toHHMM(ifr), day: toHHMM(day), night: toHHMM(night) };
 }
 
-function Stat({ label, value }) {
-  return (
-    <div style={{ padding: 12, borderRadius: 12, background: "#fff", boxShadow: "0 6px 16px rgba(0,0,0,0.08)" }}>
-      <div style={{ fontSize: 12, color: "#555" }}>{label}</div>
-      <div style={{ fontSize: 20, fontWeight: 700 }}>{value}</div>
-    </div>
-  );
-}
-
 export default function App() {
   const [rows, setRows] = useState([]);
   const [pilotNames, setPilotNames] = useState([]);
